@@ -1,5 +1,7 @@
 package com.codepoetics.radioactive;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +9,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface Getter<T, V> extends Function<T, V> {
+
+
+    static <T, V> Getter<T, V> of(Method method) {
+        return of(new GetterMethod<T, V>(method));
+    }
 
     static <T, V> Getter<T, V> of(Function<T, V> f) {
         return f::apply;

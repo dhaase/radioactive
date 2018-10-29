@@ -1,5 +1,9 @@
 package com.codepoetics.radioactive;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -8,6 +12,23 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 public interface Accessor<T, V> extends Getter<T, V>, Setter<T, V> {
+
+    static<T, V> Accessor<T, V> of(Class<?> beanType, String propertyName) {
+        BeanInfo beanInfo = null;
+        try {
+            beanInfo = Introspector.getBeanInfo(beanType);
+        } catch (IntrospectionException e) {
+            throw new IllegalStateException(e);
+        }
+        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            if (pd.getName().equals(propertyName)) {
+                Function<T, V> getter = Getter.of(pd.getReadMethod());
+                BiConsumer<T, V> setter = Setter.of(pd.getWriteMethod());
+                return of(getter, setter);
+            }
+        }
+        throw new IllegalArgumentException("Property not found " + propertyName);
+    }
 
     static<T, V> Accessor<T, V> of(Function<T, V> getter, BiConsumer<T, V> setter) {
         return new Accessor<T, V>() {

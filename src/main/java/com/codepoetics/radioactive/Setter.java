@@ -1,5 +1,6 @@
 package com.codepoetics.radioactive;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -8,6 +9,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public interface Setter<T, V> extends BiConsumer<T, V> {
+
+    static <T, V> Setter<T, V> of(final Method method) {
+        return of(new SetterMethod<T, V>(method));
+    }
 
     static <T, V> Setter<T, V> of(BiConsumer<T, V> c) {
         return c::accept;
